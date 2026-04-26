@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionnaire DISC — Profil Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --D: #C0392B; --I: #D4AC0D; --S: #27AE60; --C: #2471A3;
+    --D-light: #FADBD8; --I-light: #FEF9E7; --S-light: #D5F5E3; --C-light: #D6EAF8;
+    --bg: #F8F7F2; --surface: #FFFFFF; --border: rgba(0,0,0,0.08);
+    --text: #1A1A1A; --muted: #6B6B6B;
+    --radius: 16px; --transition: 0.2s ease;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+  }
+  .header .brand {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  .header p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* INTRO SCREEN */
+  #screen-intro .field {
+    margin-bottom: 1.5rem;
+  }
+  #screen-intro label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+  #screen-intro input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  #screen-intro input:focus {
+    border-color: #1A1A1A;
+  }
+  .disc-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+  .pill {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .pill-D { background: var(--D-light); color: var(--D); }
+  .pill-I { background: var(--I-light); color: var(--I); }
+  .pill-S { background: var(--S-light); color: var(--S); }
+  .pill-C { background: var(--C-light); color: var(--C); }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 1.5rem 0;
+  }
+  .info-item {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+  .info-item .num { font-family: 'DM Serif Display', serif; font-size: 1.8rem; }
+  .info-item .lbl { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    background: var(--bg);
+    border-radius: 4px;
+    height: 6px;
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #1A1A1A;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  /* QUESTION CARD */
+  .q-dimension {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 0.75rem;
+  }
+  .q-number {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .q-text {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+  }
+  .likert {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .likert-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+  }
+  .likert-option:hover { border-color: #999; background: var(--bg); }
+  .likert-option.selected { border-color: #1A1A1A; background: #1A1A1A; color: #fff; }
+  .likert-score {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .likert-label { font-size: 0.9rem; }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+    justify-content: space-between;
+  }
+  .btn {
+    padding: 0.75rem 1.75rem;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+  }
+  .btn-primary {
+    background: #1A1A1A;
+    color: #fff;
+    border-color: #1A1A1A;
+    flex: 1;
+  }
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled { background: #ccc; border-color: #ccc; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--text); }
+  .btn-secondary:hover { background: var(--bg); }
+
+  /* RESULTS */
+  .result-hero {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+  }
+  .result-hero .name { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .result-hero h2 { font-family: 'DM Serif Display', serif; font-size: 2rem; font-weight: 400; margin-bottom: 0.5rem; }
+  .result-hero .subtitle { font-size: 0.95rem; opacity: 0.8; }
+
+  .scores-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .score-card {
+    border-radius: 12px;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .score-card .letter { font-family: 'DM Serif Display', serif; font-size: 1.6rem; margin-bottom: 4px; }
+  .score-card .pct { font-size: 1.1rem; font-weight: 500; }
+  .score-card .lbl { font-size: 0.7rem; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .profile-block {
+    border-left: 3px solid;
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 1rem;
+  }
+  .profile-block h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+  .profile-block p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+  .traits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 1rem 0;
+  }
+  .trait-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .trait-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .chart-wrap { position: relative; width: 100%; height: 300px; margin: 1rem 0; }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2rem;
+    line-height: 1.5;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    .scores-row { grid-template-columns: repeat(2, 1fr); }
+    .info-grid { grid-template-columns: 1fr; }
+    .traits-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">23 MindSet — Outil de développement</div>
+  <h1>Questionnaire DISC</h1>
+  <p>Identifiez votre profil comportemental dominant pour mieux vous connaître et comprendre les autres.</p>
+</div>
+
+<!-- SCREEN 1: INTRO -->
+<div id="screen-intro" class="card">
+  <div class="field">
+    <label>Votre prénom et nom</label>
+    <input type="text" id="user-name" placeholder="Ex : Marie Dupont" />
+  </div>
+  <div class="disc-pills">
+    <span class="pill pill-D">D — Dominance</span>
+    <span class="pill pill-I">I — Influence</span>
+    <span class="pill pill-S">S — Stabilité</span>
+    <span class="pill pill-C">C — Conformité</span>
+  </div>
+  <div class="info-grid">
+    <div class="info-item"><div class="num">40</div><div class="lbl">affirmations à évaluer</div></div>
+    <div class="info-item"><div class="num">~8 min</div><div class="lbl">durée estimée</div></div>
+  </div>
+  <p style="font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:1.5rem;">
+    Pour chaque affirmation, indiquez dans quelle mesure elle vous correspond, de <strong>1 – Pas du tout</strong> à <strong>5 – Tout à fait</strong>. Répondez spontanément, sans réfléchir trop longtemps.
+  </p>
+  <button class="btn btn-primary" onclick="startQuestionnaire()">Commencer le questionnaire →</button>
+</div>
+
+<!-- SCREEN 2: QUESTIONS -->
+<div id="screen-questions" class="hidden" style="width:100%;max-width:680px;">
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <div class="progress-label">
+    <span id="progress-text">Question 1 / 40</span>
+    <span id="progress-dim"></span>
+  </div>
+  <div class="card" id="question-card">
+    <div class="q-dimension" id="q-dim-label"></div>
+    <div class="q-number" id="q-num"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="likert" id="likert-options"></div>
+    <div class="nav">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevQuestion()">← Précédent</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>Suivant →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: RESULTS -->
+<div id="screen-results" class="hidden" style="width:100%;max-width:680px;">
+  <div class="result-hero card" id="result-hero">
+    <div class="name" id="result-name"></div>
+    <h2 id="result-title"></h2>
+    <div class="subtitle" id="result-subtitle"></div>
+  </div>
+
+  <div class="card">
+    <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem;font-weight:500;">Vos 4 scores DISC</p>
+    <div class="scores-row" id="scores-row"></div>
+    <div class="chart-wrap">
+      <canvas id="discChart" role="img" aria-label="Graphique radar affichant les 4 dimensions DISC">Vos résultats DISC sur les dimensions D, I, S et C.</canvas>
+    </div>
+  </div>
+
+  <div class="card" id="profile-detail">
+    <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;font-weight:500;">Profil dominant — analyse</p>
+    <div id="profile-content"></div>
+  </div>
+
+  <div class="card">
+    <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem;font-weight:500;">Carte de synthèse</p>
+    <div id="all-profiles"></div>
+  </div>
+
+  <div class="footer-note">
+    Questionnaire élaboré par <strong>23 MindSet</strong> — Fares ATBA, Formateur professionnel d'adultes<br>
+    Les résultats sont indicatifs et servent de base à la réflexion. Ils ne constituent pas un diagnostic clinique.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const QUESTIONS = [
+  { dim: 'D', text: "Je prends des décisions rapidement, même sous pression." },
+  { dim: 'D', text: "Je n'hésite pas à affirmer mon point de vue, même s'il déplaît." },
+  { dim: 'D', text: "J'aime relever des défis qui mettent mes capacités à l'épreuve." },
+  { dim: 'D', text: "Je préfère agir et corriger le tir plutôt qu'attendre d'avoir toutes les informations." },
+  { dim: 'D', text: "Je suis à l'aise pour exprimer un désaccord ouvertement." },
+  { dim: 'D', text: "J'aime avoir le contrôle sur les décisions qui me concernent." },
+  { dim: 'D', text: "Je me sens stimulé(e) par la compétition." },
+  { dim: 'D', text: "Je fixe des objectifs élevés et mets tout en œuvre pour les atteindre." },
+  { dim: 'D', text: "Je suis capable de prendre des risques calculés pour avancer." },
+  { dim: 'D', text: "Je préfère diriger un projet plutôt qu'en être l'exécutant(e)." },
+  { dim: 'I', text: "J'aime être entouré(e) et travailler avec de nombreuses personnes différentes." },
+  { dim: 'I', text: "Je m'exprime facilement et avec enthousiasme au sein d'un groupe." },
+  { dim: 'I', text: "Je suis à l'aise pour prendre la parole en public." },
+  { dim: 'I', text: "J'ai tendance à motiver et inspirer les personnes autour de moi." },
+  { dim: 'I', text: "Je crée facilement de nouveaux contacts professionnels." },
+  { dim: 'I', text: "Je cherche à maintenir une atmosphère positive et dynamique." },
+  { dim: 'I', text: "J'aime partager mes idées et recueillir celles des autres." },
+  { dim: 'I', text: "Je suis perçu(e) comme quelqu'un d'optimiste et d'enthousiaste." },
+  { dim: 'I', text: "Je suis capable de convaincre les autres de changer de point de vue." },
+  { dim: 'I', text: "J'aime les environnements où il y a de l'énergie et de la créativité." },
+  { dim: 'S', text: "Je préfère un environnement de travail stable et prévisible." },
+  { dim: 'S', text: "Je prends le temps d'écouter les autres avant de répondre." },
+  { dim: 'S', text: "Je suis reconnu(e) pour ma fiabilité et ma régularité." },
+  { dim: 'S', text: "Je préfère des changements progressifs plutôt que des ruptures brutales." },
+  { dim: 'S', text: "Je suis attentif(ve) aux besoins émotionnels des membres de mon équipe." },
+  { dim: 'S', text: "Je termine ce que j'ai commencé avant de passer à autre chose." },
+  { dim: 'S', text: "Je maintiens un rythme de travail constant et méthodique." },
+  { dim: 'S', text: "Je valorise la loyauté et la solidarité au sein d'une équipe." },
+  { dim: 'S', text: "Je préfère coopérer plutôt que confronter." },
+  { dim: 'S', text: "Je suis patient(e) et persévérant(e) face aux situations complexes." },
+  { dim: 'C', text: "J'accorde une grande importance aux détails et à la précision." },
+  { dim: 'C', text: "J'analyse soigneusement les situations avant de prendre une décision." },
+  { dim: 'C', text: "Je respecte scrupuleusement les règles et les procédures établies." },
+  { dim: 'C', text: "Je vérifie systématiquement la qualité de mon travail avant de le rendre." },
+  { dim: 'C', text: "Je recherche des informations complètes avant d'agir." },
+  { dim: 'C', text: "Je préfère prendre le temps de bien faire plutôt que d'aller vite." },
+  { dim: 'C', text: "Je suis à l'aise avec les données chiffrées et les analyses." },
+  { dim: 'C', text: "J'évalue objectivement les idées, y compris les miennes." },
+  { dim: 'C', text: "J'aime trouver des solutions logiques et structurées." },
+  { dim: 'C', text: "Je valorise la rigueur et la méthode dans mon travail." }
+];
+
+const LIKERT = [
+  { score: 1, label: "Pas du tout d'accord" },
+  { score: 2, label: "Plutôt pas d'accord" },
+  { score: 3, label: "Ni l'un ni l'autre" },
+  { score: 4, label: "Plutôt d'accord" },
+  { score: 5, label: "Tout à fait d'accord" }
+];
+
+const DIM_CONFIG = {
+  D: { label: 'Dominance', color: '#C0392B', light: '#FADBD8', desc: 'D — Dominance', order: 0 },
+  I: { label: 'Influence', color: '#2980B9', light: '#D6EAF8', desc: 'I — Influence', order: 1 },
+  S: { label: 'Stabilité', color: '#27AE60', light: '#D5F5E3', desc: 'S — Stabilité', order: 2 },
+  C: { label: 'Conformité', color: '#8E44AD', light: '#E8DAEF', desc: 'C — Conformité', order: 3 }
+};
+
+const PROFILES = {
+  D: {
+    title: "Le Pilote — Profil Dominance",
+    subtitle: "Orienté résultats, direct et décisif",
+    description: "Vous êtes un manager naturellement orienté vers l'action et les résultats. Vous avez une forte capacité à prendre des décisions rapides et à relever des défis ambitieux. Votre leadership est direct et efficace.",
+    strengths: ["Prise de décision rapide", "Leadership affirmé", "Goût du challenge", "Orientation résultats", "Courage managérial", "Vision stratégique"],
+    axes: ["Déléguer davantage", "Écouter avant d'agir", "Prendre en compte les émotions", "Accepter la lenteur parfois nécessaire"]
+  },
+  I: {
+    title: "L'Ambassadeur — Profil Influence",
+    subtitle: "Communicant, enthousiaste et fédérateur",
+    description: "Vous êtes un manager qui crée naturellement de l'énergie collective. Votre enthousiasme est communicatif et vous savez fédérer autour d'une vision commune. Vous excellez dans la relation et la persuasion.",
+    strengths: ["Communication naturelle", "Enthousiasme contagieux", "Aisance relationnelle", "Capacité à convaincre", "Créativité", "Optimisme"],
+    axes: ["Structurer davantage", "Suivre les détails", "Respecter les délais", "Gérer les priorités"]
+  },
+  S: {
+    title: "Le Soutien — Profil Stabilité",
+    subtitle: "Fiable, patient et centré sur l'équipe",
+    description: "Vous êtes un manager de terrain, ancré dans la durée et la constance. Votre équipe sait qu'elle peut compter sur vous. Vous créez un environnement de confiance propice à la performance durable.",
+    strengths: ["Fiabilité sans faille", "Écoute active", "Patience et persévérance", "Loyauté", "Cohésion d'équipe", "Stabilité émotionnelle"],
+    axes: ["Affronter les conflits", "Accepter les changements rapides", "Affirmer ses désaccords", "Prendre des risques calculés"]
+  },
+  C: {
+    title: "L'Analyste — Profil Conformité",
+    subtitle: "Rigoureux, précis et méthodique",
+    description: "Vous êtes un manager qui garantit la qualité et la fiabilité des processus. Votre rigueur analytique est un atout précieux pour votre équipe. Vous prenez des décisions fondées sur des données solides.",
+    strengths: ["Rigueur analytique", "Attention aux détails", "Qualité du travail", "Respect des procédures", "Objectivité", "Pensée systémique"],
+    axes: ["Prendre des décisions avec moins d'informations", "Accepter l'imperfection", "Déléguer sans tout contrôler", "Communiquer davantage"]
+  }
+};
+
+let currentQ = 0;
+let answers = new Array(40).fill(null);
+let userName = '';
+
+function startQuestionnaire() {
+  userName = document.getElementById('user-name').value.trim() || 'Participant(e)';
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-questions').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const cfg = DIM_CONFIG[q.dim];
+  const dimLabel = document.getElementById('q-dim-label');
+  dimLabel.textContent = '';
+  dimLabel.style.display = 'none';
+
+  document.getElementById('q-num').textContent = `Question ${currentQ + 1} / 40`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-text').textContent = `Question ${currentQ + 1} / 40`;
+  document.getElementById('progress-dim').textContent = '';
+  document.getElementById('progress-fill').style.width = ((currentQ) / 40 * 100) + '%';
+
+  const btn = document.getElementById('btn-next');
+  btn.textContent = currentQ === 39 ? 'Voir mes résultats →' : 'Suivant →';
+  btn.disabled = answers[currentQ] === null;
+  document.getElementById('btn-prev').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+
+  const container = document.getElementById('likert-options');
+  container.innerHTML = '';
+  LIKERT.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'likert-option' + (answers[currentQ] === opt.score ? ' selected' : '');
+    el.innerHTML = `<span class="likert-score">${opt.score}</span><span class="likert-label">${opt.label}</span>`;
+    el.onclick = () => selectAnswer(opt.score);
+    container.appendChild(el);
+  });
+}
+
+function selectAnswer(score) {
+  answers[currentQ] = score;
+  document.querySelectorAll('.likert-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.likert-option')[score - 1].classList.add('selected');
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (currentQ < 39) { currentQ++; renderQuestion(); }
+  else showResults();
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function showResults() {
+  document.getElementById('screen-questions').classList.add('hidden');
+  document.getElementById('screen-results').classList.remove('hidden');
+
+  const scores = { D: 0, I: 0, S: 0, C: 0 };
+  QUESTIONS.forEach((q, i) => { if (answers[i] !== null) scores[q.dim] += answers[i]; });
+
+  const pcts = {};
+  Object.keys(scores).forEach(d => { pcts[d] = Math.round((scores[d] - 10) / 40 * 100); });
+
+  const dominant = Object.keys(pcts).reduce((a, b) => pcts[a] > pcts[b] ? a : b);
+  const profile = PROFILES[dominant];
+  const cfg = DIM_CONFIG[dominant];
+
+  document.getElementById('result-name').textContent = userName;
+  document.getElementById('result-title').textContent = profile.title;
+  document.getElementById('result-subtitle').textContent = profile.subtitle;
+  const hero = document.getElementById('result-hero');
+  hero.style.background = cfg.light;
+  hero.style.borderColor = cfg.color + '33';
+
+  const scoresRow = document.getElementById('scores-row');
+  scoresRow.innerHTML = '';
+  ['D','I','S','C'].forEach(d => {
+    const c = DIM_CONFIG[d];
+    const isTop = d === dominant;
+    scoresRow.innerHTML += `
+      <div class="score-card" style="background:${isTop ? c.light : 'var(--bg)'}; border-color:${isTop ? c.color : 'var(--border)'}">
+        <div class="letter" style="color:${c.color}">${d}</div>
+        <div class="pct" style="color:${c.color}">${pcts[d]}%</div>
+        <div class="lbl">${c.label}</div>
+      </div>`;
+  });
+
+  new Chart(document.getElementById('discChart'), {
+    type: 'radar',
+    data: {
+      labels: ['Dominance (D)', 'Influence (I)', 'Stabilité (S)', 'Conformité (C)'],
+      datasets: [{
+        label: userName,
+        data: [pcts.D, pcts.I, pcts.S, pcts.C],
+        backgroundColor: cfg.color + '22',
+        borderColor: cfg.color,
+        borderWidth: 2,
+        pointBackgroundColor: ['#C0392B','#D4AC0D','#27AE60','#2471A3'],
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { stepSize: 25, font: { size: 10 }, color: '#999' },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          angleLines: { color: 'rgba(0,0,0,0.06)' },
+          pointLabels: { font: { size: 12, family: 'DM Sans' }, color: '#444' }
+        }
+      }
+    }
+  });
+
+  const profileContent = document.getElementById('profile-content');
+  profileContent.innerHTML = `
+    <div class="profile-block" style="border-color:${cfg.color}; background:${cfg.light}">
+      <h3 style="color:${cfg.color}">${profile.title}</h3>
+      <p>${profile.description}</p>
+    </div>
+    <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin:1.25rem 0 0.75rem;font-weight:500;">Points forts</p>
+    <div class="traits-grid">${profile.strengths.map(s => `
+      <div class="trait-item">
+        <div class="trait-dot" style="background:${cfg.color}"></div>
+        <span style="font-size:0.85rem">${s}</span>
+      </div>`).join('')}
+    </div>
+    <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin:1.25rem 0 0.75rem;font-weight:500;">Axes de développement</p>
+    <div class="traits-grid">${profile.axes.map(a => `
+      <div class="trait-item">
+        <div class="trait-dot" style="background:#ccc"></div>
+        <span style="font-size:0.85rem">${a}</span>
+      </div>`).join('')}
+    </div>`;
+
+  const allProfiles = document.getElementById('all-profiles');
+  allProfiles.innerHTML = ['D','I','S','C'].map(d => {
+    const c = DIM_CONFIG[d];
+    const p = PROFILES[d];
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);${d==='C'?'border-bottom:none':''}">
+        <div style="width:36px;height:36px;border-radius:50%;background:${c.light};color:${c.color};display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:1.1rem;flex-shrink:0">${d}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.85rem;font-weight:500">${p.title}</div>
+          <div style="font-size:0.78rem;color:var(--muted)">${p.subtitle}</div>
+        </div>
+        <div style="font-size:1rem;font-weight:500;color:${c.color};flex-shrink:0">${pcts[d]}%</div>
+      </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
